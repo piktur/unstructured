@@ -90,17 +90,26 @@ def ontology_to_unstructured_elements(
         html_code_of_ontology_element = ontology_element.to_html()
         element_text = ontology_element.to_text(add_img_alt_text=add_img_alt_text)
 
+        metadata = elements.ElementMetadata(
+            parent_id=parent_id,
+            text_as_html=html_code_of_ontology_element,
+            page_number=page_number,
+            category_depth=depth,
+            filename=filename,
+        )
+
+        if is_text_element(ontology_element) and len(ontology_element.children):
+            for child in ontology_element.children:
+                if isinstance(child, ontology.Hyperlink):
+                    soup = BeautifulSoup(html_code_of_ontology_element, 'html.parser')
+                    metadata.link_texts = (metadata.link_texts or []) + [soup.get_text().strip()]
+                    metadata.link_urls = (metadata.link_urls or []) + [soup.find('a').get('href')]
+
         unstructured_element = element_class(
             text=element_text,
             element_id=ontology_element.id,
             detection_origin="vlm_partitioner",
-            metadata=elements.ElementMetadata(
-                parent_id=parent_id,
-                text_as_html=html_code_of_ontology_element,
-                page_number=page_number,
-                category_depth=depth,
-                filename=filename,
-            ),
+            metadata=metadata,
         )
         elements_to_return = [unstructured_element]
 
@@ -188,6 +197,7 @@ def is_text_element(ontology_element: ontology.OntologyElement) -> bool:
         ontology.NarrativeText,
         ontology.Quote,
         ontology.Paragraph,
+        ontology.UncategorizedText,
         ontology.Footnote,
         ontology.FootnoteReference,
         ontology.Citation,

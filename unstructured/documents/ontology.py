@@ -89,7 +89,7 @@ class OntologyElement(BaseModel):
 
         return result_html
 
-    def to_text(self, add_children=True, add_img_alt_text=True) -> str:
+    def to_text(self, add_children=True, add_img_alt_text=True, separator=" ") -> str:
         """
         Returns the text representation of the element.
 
@@ -99,7 +99,7 @@ class OntologyElement(BaseModel):
             add_img_alt_text: If True, the alt text of the image will be included.
         """
         if self.children and add_children:
-            children_text = " ".join(
+            children_text = separator.join(
                 child.to_text(add_children, add_img_alt_text).strip() for child in self.children
             )
             return children_text
@@ -261,7 +261,6 @@ class UncategorizedText(OntologyElement):
     elementType: ElementTypeEnum = Field(ElementTypeEnum.text, frozen=True)
     allowed_tags: List[str] = Field(["span"], frozen=True)
 
-
 class OrderedList(OntologyElement):
     description: str = Field("A list with a specific sequence", frozen=True)
     elementType: ElementTypeEnum = Field(ElementTypeEnum.list, frozen=True)
@@ -273,6 +272,8 @@ class UnorderedList(OntologyElement):
     elementType: ElementTypeEnum = Field(ElementTypeEnum.list, frozen=True)
     allowed_tags: List[str] = Field(["ul"], frozen=True)
 
+    def to_text(self, add_children=True, add_img_alt_text=True, separator="\n") -> str:
+        return super().to_text(add_children, add_img_alt_text, separator)
 
 class DefinitionList(OntologyElement):
     description: str = Field("A list of terms and their definitions", frozen=True)
@@ -285,6 +286,8 @@ class ListItem(OntologyElement):
     elementType: ElementTypeEnum = Field(ElementTypeEnum.list, frozen=True)
     allowed_tags: List[str] = Field(["li"], frozen=True)
 
+    def to_text(self, add_children=True, add_img_alt_text=True, separator="\n") -> str:
+        return super().to_text(add_children, add_img_alt_text, separator)
 
 class Table(OntologyElement):
     description: str = Field("A structured set of data", frozen=True)
@@ -375,12 +378,32 @@ class CodeBlock(OntologyElement):
     elementType: ElementTypeEnum = Field(ElementTypeEnum.code, frozen=True)
     allowed_tags: List[str] = Field(["pre", "code"], frozen=True)
 
+    def _generate_final_html(self, attr_str: str, children_html: str) -> str:
+        text = self.text or ""
+
+        if text or children_html:
+            return f"{text} {children_html}"
+        else:
+            return ""
+
+    def to_text(self, add_children=True, add_img_alt_text=True) -> str:
+        return super().to_html(add_children)
 
 class InlineCode(OntologyElement):
     description: str = Field("Code within a line of text", frozen=True)
     elementType: ElementTypeEnum = Field(ElementTypeEnum.code, frozen=True)
     allowed_tags: List[str] = Field(["code"], frozen=True)
 
+    def _generate_final_html(self, attr_str: str, children_html: str) -> str:
+        text = self.text or ""
+
+        if text or children_html:
+            return f"{text} {children_html}"
+        else:
+            return ""
+
+    def to_text(self, add_children=True, add_img_alt_text=True) -> str:
+        return super().to_html(add_children)
 
 class Formula(OntologyElement):
     description: str = Field("A mathematical formula", frozen=True)

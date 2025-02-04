@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from typing import IO, Any
 
-import markdown
+from markdown_it import MarkdownIt
+from mdit_py_plugins.front_matter import front_matter_plugin
+from mdit_py_plugins.footnote import footnote_plugin
 import requests
 
 from unstructured.documents.elements import Element
@@ -73,7 +75,16 @@ def partition_md(
 
         text = response.text
 
-    html = markdown.markdown(text, extensions=["tables"])
+    # Replace markdown python implementation with markdown-it. Markdown-it supports nested code
+    # snippets.
+    md = (
+        MarkdownIt('gfm-like', {'breaks':True,'html':True})
+            .use(front_matter_plugin)
+            .use(footnote_plugin)
+            .enable('table')
+    )
+    html = md.render(text)
+    html = f"<body class=\"Document\">{html}</body>"
 
     return partition_html(
         text=html,
