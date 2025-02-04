@@ -1,0 +1,4 @@
+packages:
+  - packages
+catalog:
+  lefthook: 1.8.1

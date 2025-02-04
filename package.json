@@ -1,0 +1,30 @@
+{
+  "name": "@piktur/unstructured",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "lefthook": "catalog:"
+  },
+  "packageManager": "pnpm@9.12.2",
+  "engines": {
+    "node": "22.11.0",
+    "pnpm": "9.12.2"
+  },
+  "publishConfig": {
+    "@piktur:registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "pnpm": {
+    "peerDependencyRules": {},
+    "supportedArchitectures": {
+      "cpu": [
+        "x64",
+        "arm64"
+      ],
+      "os": [
+        "current"
+      ]
+    }
+  }
+}

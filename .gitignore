@@ -208,3 +208,5 @@ metricsdiff.txt
 
 # analysis
 annotated/
+
+node_modules/

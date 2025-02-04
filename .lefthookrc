@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# Export keys
+source "$HOME"/Code/piktur/.dotfiles/env/ks.sh

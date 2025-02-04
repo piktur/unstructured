@@ -1,0 +1,24 @@
+{
+  "pre-push": {
+    "parallel": true,
+    "commands": {
+      "audit": {
+        "tags": "security",
+        "run": "pnpm audit --audit-level high"
+      }
+    }
+  },
+  "prepare-commit-msg": {
+    "parallel": true,
+    "commands": {
+      "generate-message": {
+        "run": "$PIKTUR_HOME/finance/bin/commit-message.sh -o .git/COMMIT_EDITMSG",
+        "skip": [
+          "merge",
+          "rebase"
+        ]
+      }
+    }
+  },
+  "rc": ".lefthookrc"
+}
